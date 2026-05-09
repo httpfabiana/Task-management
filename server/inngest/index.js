@@ -91,7 +91,7 @@ const syncWorkspaceCreation = inngest.createFunction(
 
 const syncWorkspaceUpdation = inngest.createFunction(
    {
-    id: "sync-workspace-from-clerk",
+    id: "sync-workspace-updated-from-clerk",
     triggers: [{ event: "clerk/organization.uptaded"}],
    },
 
@@ -112,7 +112,7 @@ const syncWorkspaceUpdation = inngest.createFunction(
 
 const syncWorkspaceDeletion = inngest.createFunction(
   {
-    id: "sync-workspace-from-clerk",
+    id: "sync-workspace-deleted-from-clerk",
     triggers: [{ event: "clerk/organization.deleted"}],
    },
    
