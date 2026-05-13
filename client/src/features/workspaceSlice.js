@@ -1,8 +1,24 @@
-import { createSlice } from '@reduxjs/toolkit';
-import { dummyWorkspaces} from '../assets/assets';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+//import { dummyWorkspaces} from '../assets/assets';
+import api from '../configs/api'
+
+export const fetchWorkspaces = createAsyncThunk('workspace/fetchWorkspaces', async({getToken}) => {
+   try{
+    const { data } = await api.get('/api/workspaces', {headers: {
+      Authorization: `Bearer ${await getToken()}`
+    }})
+
+     console.log(data)
+    return data.workspaces || []
+
+   }catch(error){
+    console.log(error?.response?.data?.message || error.message)
+    return []
+   }
+})
 
 const initialState = {
-  workspaces: dummyWorkspaces || [],
+  workspaces:  [],
   currentWorkspace: null,
   loading: false,
 };
@@ -125,7 +141,37 @@ const workspaceSlice = createSlice({
        }
       }
      } 
-    }     
+    },
+
+    extraReducers: (builder) =>{
+     builder.addCase(fetchWorkspaces.pending, (state) => {
+      state.loading = true
+     });
+      
+     builder.addCase(fetchWorkspaces.fulfilled, (state, action) => {
+      const workspaces = action.payload;
+
+      state.workspaces = workspaces;
+
+      if(workspaces.length === 0){
+        state.loading = false;
+        return
+      }
+
+      const saveWorkspaceId = localStorage.getItem("currentWorkspaceId");
+
+      const saveWorkspace = workspaces.find((workspace) => workspace.id === saveWorkspaceId);
+
+      state.currentWorkspace = saveWorkspace || workspaces[0];
+
+      console.log("payload", action.payload)
+      state.loading = false;
+     })
+
+     builder.addCase(fetchWorkspaces.rejected, (state) => {
+      state.loading = false;
+     })
+    },
 })
 
 export const { setWorkspaces, setCurrentWorkspace, addWorkspace, updateWorkspace, deleteWorkspace, addProject, addTask, updateTask, deleteTask } = workspaceSlice.actions;

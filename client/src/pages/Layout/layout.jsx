@@ -2,27 +2,36 @@ import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Outlet } from "react-router-dom";
 import { Loader2Icon } from "lucide-react";
-
 import Navbar from "@/components/Navbar/navBar";
 import Sidebar from "@/components/Sidebar/sidebar";
 import {loadTheme} from '@/features/themeSlice'
-import {useUser, SignIn} from '@clerk/react'
+import {useUser, SignIn, useAuth, CreateOrganization} from '@clerk/react'
+import { fetchWorkspaces } from "@/features/workspaceSlice";
+
 
 const Layout = () => {
   // controla se a sidebar está aberta ou fechada
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // pega estado de loading do workspace
-  const { loading } = useSelector((state) => state.workspace);
+  const { loading, workspaces } = useSelector((state) => state.workspace);
 
   const dispatch = useDispatch();
 
   const { user, isLoaded } = useUser()
 
+  const {getToken} = useAuth()
+
   // carrega o tema quando o app abre
   useEffect(() => {
     dispatch(loadTheme());
   }, [dispatch]);
+
+  useEffect(() => {
+    if(isLoaded && user && workspaces?.length === 0){
+      dispatch(fetchWorkspaces({getToken}))
+    }
+  }, [user, isLoaded])
 
   if(!user){
     return (
@@ -40,6 +49,14 @@ const Layout = () => {
       </div>
     );
   }
+
+   if(user && workspaces.length === 0){
+      return(
+        <div className="min-h-screen flex justify-center items-center">
+          <CreateOrganization/>
+        </div>
+      )
+    }
 
   return (
     <div className="flex bg-white dark:bg-zinc-950 text-gray-900 dark:text-slate-100">

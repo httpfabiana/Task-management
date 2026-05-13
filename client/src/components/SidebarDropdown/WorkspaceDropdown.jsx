@@ -3,13 +3,19 @@ import { ChevronDown, Check, Plus } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import {setCurrentWorkspace} from '../../features/workspaceSlice';
 import { useNavigate } from "react-router-dom";
-import { dummyWorkspaces } from "../../assets/assets";
+//import { dummyWorkspaces } from "../../assets/assets";
 import { Button } from "../ui/button";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel,
  DropdownMenuSeparator, DropdownMenuItem
 } from "../ui/dropdown-menu";
+import { useOrganizationList, useClerk } from "@clerk/react";
+import { useEffect } from "react";
 
 function WorkspaceDropdown() {
+
+  const {setActive, userMemberships, isLoaded} = useOrganizationList({userMemberships: true})
+
+  const {openCreateOrganization} = useClerk()
 
   const { workspaces, currentWorkspace} = useSelector((state) => state.workspace)
  
@@ -17,9 +23,17 @@ function WorkspaceDropdown() {
   const navigate = useNavigate()
 
   const handleSelectWorkspace = (workspaceId) => {
+    setActive({organization: workspaceId})
     dispatch(setCurrentWorkspace(workspaceId))
     navigate("/")
   }
+
+  useEffect(() => {
+    if(currentWorkspace && isLoaded){
+     setActive({organization: currentWorkspace.id})
+    }
+
+  },[currentWorkspace, isLoaded])
 
   return (
    <div className="w-full">
@@ -56,31 +70,31 @@ function WorkspaceDropdown() {
       </DropdownMenuLabel>
 
      
-      {dummyWorkspaces.map((workspace) => (
-       <DropdownMenuItem key={workspace.id} onClick={() => handleSelectWorkspace(workspace.id)}  className="cursor-pointer">
+      {userMemberships.data.map(({organization}) => (
+       <DropdownMenuItem key={organization.id} onClick={() => handleSelectWorkspace(organization.id)}  className="cursor-pointer">
         <div className="flex w-full items-center gap-3 ml-2">
          <img
-          src={workspace.image_url}
+          src={organization.imageUrl}
           alt=""
           className="h-8 w-8 rounded-md object-cover"
          />
 
          <div className="flex flex-1 min-w-0 flex-col">
           <p className="truncate text-sm font-medium">
-            {workspace.name}
+            {organization.name}
           </p>
 
            <p className="truncate text-sm font-medium">
-            {workspace.members?.length || 0} members
+            {organization.members?.length || 0} members
           </p>
          </div>
 
-         {currentWorkspace?.id === workspace.id && (<Check className="h-4 w-4 text-blue-500"/>)}
+         {currentWorkspace?.id === organization.id && (<Check className="h-4 w-4 text-blue-500"/>)}
         </div>
        </DropdownMenuItem>
       ))}
 
-      <DropdownMenuItem className="cursor-pointer py-2 text-xl text-blue-500">
+      <DropdownMenuItem onClick={() => {openCreateOrganization()}} className="cursor-pointer py-2 text-xl text-blue-500">
         <Plus className="mr-2 h-5 w-5"/>
         Create Workspace
       </DropdownMenuItem>
