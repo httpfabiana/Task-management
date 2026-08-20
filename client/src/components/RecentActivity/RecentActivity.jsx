@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+
 import { useSelector } from "react-redux";
 import { format } from "date-fns";
 import {GitCommit, MessageSquare, Clock,Bug,Zap,Square,} from "lucide-react";
@@ -8,7 +8,9 @@ import { Badge } from "@/components/ui/badge";
 const RecentActivity = () => {
   const {currentWorkspace} = useSelector((state) => state.workspace)
 
-  const [tasks, setTasks] = useState([]);
+  const tasks = currentWorkspace?.projects.flatMap(
+    (project) => project.tasks || []
+  ) || [];
 
   const iconTypes = {
    BUG: Bug,
@@ -18,23 +20,10 @@ const RecentActivity = () => {
    OTHER: GitCommit,
   };
 
-  useEffect(() => {
-   if(!currentWorkspace){
-    setTasks([]);
-    return;
-   }
-
-   const allTasks = currentWorkspace.projects.flatMap(
-    (project) => project.tasks || []
-   )
-
-   setTasks(allTasks)
-  }, [currentWorkspace])
-
   return (
    <Card>
     <CardHeader>
-     <CardTitle>Recent Activity</CardTitle>
+     <CardTitle>Atividade recente</CardTitle>
     </CardHeader>
 
     <CardContent>

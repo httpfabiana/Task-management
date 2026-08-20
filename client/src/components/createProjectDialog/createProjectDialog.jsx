@@ -1,29 +1,21 @@
 import { useState } from "react";
 import { X } from "lucide-react";
-import { useSelector } from "react-redux";
-
-
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "../ui/dialog";
-
+import { useDispatch, useSelector } from "react-redux";
+import {Dialog,DialogContent,DialogHeader,DialogTitle,DialogDescription,} from "../ui/dialog";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
+import {toast} from 'react-hot-toast'
+import api from "@/configs/api";
+import { useAuth } from "@clerk/react";
+import { addProject } from "@/features/workspaceSlice";
 
-const CreateProjectDialog = ({
-  isDialogOpen,
-  setIsDialogOpen,
-}) => {
+const CreateProjectDialog = ({ isDialogOpen,setIsDialogOpen,}) => {
+  const {getToken} = useAuth()
+  const dispatch = useDispatch()
 
-  const { currentWorkspace } = useSelector(
-    (state) => state.workspace
-  );
+  const { currentWorkspace } = useSelector((state) => state.workspace);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -39,7 +31,6 @@ const CreateProjectDialog = ({
     progress: 0,
   });
 
-  // Atualiza qualquer campo
   const handleChange = (field, value) => {
     setFormData((prev) => ({
       ...prev,
@@ -47,11 +38,9 @@ const CreateProjectDialog = ({
     }));
   };
 
-  // Adicionar membro
   const addTeamMember = (email) => {
     if (!email) return;
 
-    // Evita repetir membro
     if (formData.team_members.includes(email)) return;
 
     setFormData((prev) => ({
@@ -60,7 +49,6 @@ const CreateProjectDialog = ({
     }));
   };
 
-  // Remover membro
   const removeTeamMember = (email) => {
     setFormData((prev) => ({
       ...prev,
@@ -70,21 +58,26 @@ const CreateProjectDialog = ({
     }));
   };
 
-  // Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
+      if(!formData.team_lead){
+        return toast.error("Por favor, selecione um lider da equipe.")
+      }
+
       setIsSubmitting(true);
+      const {data} = await api.post("/api/projects", 
+        { workspaceId: currentWorkspace.id, ...formData},
+        {headers: {Authorization: `Bearer ${await getToken()}`}})
+        
+        dispatch(addProject(data.project))
+        setIsDialogOpen(false);
 
-      console.log(formData);
-
-      // Aqui vai sua API futuramente
-
-      setIsDialogOpen(false);
+        console.log(formData);
 
     } catch (error) {
-      console.log(error);
+      toast.error(error?.response?.data?.message || error.message)
 
     } finally {
       setIsSubmitting(false);
@@ -96,9 +89,8 @@ const CreateProjectDialog = ({
       open={isDialogOpen}
       onOpenChange={setIsDialogOpen}
     >
-      <DialogContent className="sm:max-w-2xl">
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
 
-        {/* Header */}
         <DialogHeader>
           <DialogTitle>
             Create New Project
@@ -109,7 +101,6 @@ const CreateProjectDialog = ({
           </DialogDescription>
         </DialogHeader>
 
-        {/* Workspace */}
         {currentWorkspace && (
           <div className="text-sm text-muted-foreground">
             Workspace:
@@ -119,13 +110,8 @@ const CreateProjectDialog = ({
           </div>
         )}
 
-        {/* Form */}
-        <form
-          onSubmit={handleSubmit}
-          className="space-y-5"
-        >
+        <form onSubmit={handleSubmit} className="space-y-3">
 
-          {/* Project Name */}
           <div className="space-y-2">
             <Label>Project Name</Label>
 
@@ -138,7 +124,6 @@ const CreateProjectDialog = ({
             />
           </div>
 
-          {/* Description */}
           <div className="space-y-2">
             <Label>Description</Label>
 
@@ -154,10 +139,8 @@ const CreateProjectDialog = ({
             />
           </div>
 
-          {/* Status + Priority */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
 
-            {/* Status */}
             <div className="space-y-2">
               <Label>Status</Label>
 
@@ -172,30 +155,29 @@ const CreateProjectDialog = ({
                 }
               >
                 <option value="PLANNING">
-                  Planning
+                  Planejamento
                 </option>
 
                 <option value="ACTIVE">
-                  Active
+                  Ativo
                 </option>
 
                 <option value="COMPLETED">
-                  Completed
+                  Concluido
                 </option>
 
                 <option value="ON_HOLD">
-                  On Hold
+                  Em espera
                 </option>
 
                 <option value="CANCELLED">
-                  Cancelled
+                  Canceleada
                 </option>
               </select>
             </div>
 
-            {/* Priority */}
             <div className="space-y-2">
-              <Label>Priority</Label>
+              <Label>Prioridade</Label>
 
               <select
                 className="w-full h-10 rounded-md border bg-background px-3 text-sm"
@@ -208,24 +190,23 @@ const CreateProjectDialog = ({
                 }
               >
                 <option value="LOW">
-                  Low
+                  Baixa
                 </option>
 
                 <option value="MEDIUM">
-                  Medium
+                  Média
                 </option>
 
                 <option value="HIGH">
-                  High
+                  Alta
                 </option>
               </select>
             </div>
           </div>
 
           {/* Dates */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
 
-            {/* Start Date */}
             <div className="space-y-2">
               <Label>Start Date</Label>
 
@@ -241,7 +222,6 @@ const CreateProjectDialog = ({
               />
             </div>
 
-            {/* End Date */}
             <div className="space-y-2">
               <Label>End Date</Label>
 
@@ -259,7 +239,6 @@ const CreateProjectDialog = ({
             </div>
           </div>
 
-          {/* Team Lead */}
           <div className="space-y-2">
             <Label>Project Lead</Label>
 
@@ -295,7 +274,6 @@ const CreateProjectDialog = ({
             </select>
           </div>
 
-          {/* Team Members */}
           <div className="space-y-3">
 
             <Label>Team Members</Label>
@@ -327,7 +305,6 @@ const CreateProjectDialog = ({
                 ))}
             </select>
 
-            {/* Members List */}
             {formData.team_members.length > 0 && (
               <div className="flex flex-wrap gap-2">
 
@@ -354,7 +331,6 @@ const CreateProjectDialog = ({
             )}
           </div>
 
-          {/* Footer */}
           <div className="flex justify-end gap-3">
 
             <Button

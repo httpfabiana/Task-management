@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { Link } from "react-router-dom"
 import { useSelector } from "react-redux"
 import { format } from "date-fns"
@@ -9,24 +9,19 @@ import { Button } from "../ui/button"
 import { Badge } from "../ui/badge"
 
 const ProjectOverview = () => {
-  const {currentWorkspace} = useSelector((state) => state.workspace);
+   const { currentWorkspace } = useSelector((state) => state.workspace)
 
-  const [projects, setProjects] = useState([])
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
+   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
-  useEffect(() => {
-    setProjects(
-     currentWorkspace?.projects || []
-    )
-  }, [currentWorkspace])
+   const projects = currentWorkspace?.projects || []
 
-  const statusStyle = {
-   PLANNING: "secondary",
-   ACTIVE: "default",
-   ON_HOLD: "outline",
-   COMPLETED: "default",
-   CANCELLED: "destructive"
-  }
+   const statusStyle = {
+    PLANNING: "secondary",
+    ACTIVE: "default",
+    ON_HOLD: "outline",
+    COMPLETED: "default",
+    CANCELLED: "destructive"
+}
 
   return (
    currentWorkspace && (
@@ -35,7 +30,7 @@ const ProjectOverview = () => {
       <CardTitle>Project Overview</CardTitle>
 
       <Link to="/projects" className="text-sm flex items-center gap-1 text-muted-foreground">
-        View all
+        Ver tudo
         <ArrowRight size={17}/>
       </Link>
      </CardHeader>
@@ -47,11 +42,11 @@ const ProjectOverview = () => {
           <FolderOpen size={28}/>
         </div>
         <p className="text-sm text-muted-foreground">
-         No project yet
+         Nenhum projeto ainda
         </p>
 
         <Button onClick={() => setIsDialogOpen(true)}>
-          Create First Project
+          Crie seu primeiro projeto
         </Button>
 
         <CreateProjectDialog isDialogOpen={isDialogOpen} setIsDialogOpen={setIsDialogOpen}/>
@@ -96,7 +91,7 @@ const ProjectOverview = () => {
 
          <div className="space-y-1">
          <div className="flex justify-between text-xs">
-          <span>Progress</span>
+          <span>Progresso</span>
 
           <span>
            {project.progress || 0} %

@@ -15,7 +15,7 @@ export default function ProjectCard({ project }) {
   const progress = project.progress || 0;
 
   return(
-   <Link to={`/projectDetail?.id=${project.id}&tab=tasks`}>
+   <Link to={`/projectDetail?id=${project.id}&tab=tasks`}>
    <Card className="h-full hover:shadow-md transition">
    <CardContent className="p-5 space-y-4">
    <div>
@@ -48,7 +48,7 @@ export default function ProjectCard({ project }) {
      </div>
 
      <div className="w-full h-2 rounded bg-muted overflow-hidden">
-      <div className="h-2 bg-primary" style={{width: `${progress}`}}/>
+      <div className="h-2 bg-primary" style={{width: `${progress}%`}}/>
      </div>
      </div>
    </CardContent>

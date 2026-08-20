@@ -13,7 +13,7 @@ import { useEffect } from "react";
 
 function WorkspaceDropdown() {
 
-  const {setActive, userMemberships, isLoaded} = useOrganizationList({userMemberships: true})
+  const {setActive, isLoaded} = useOrganizationList({userMemberships: true})
 
   const {openCreateOrganization} = useClerk()
 
@@ -33,7 +33,7 @@ function WorkspaceDropdown() {
      setActive({organization: currentWorkspace.id})
     }
 
-  },[currentWorkspace, isLoaded])
+  },[currentWorkspace, isLoaded, setActive])
 
   return (
    <div className="w-full">
@@ -70,26 +70,26 @@ function WorkspaceDropdown() {
       </DropdownMenuLabel>
 
      
-      {userMemberships.data.map(({organization}) => (
-       <DropdownMenuItem key={organization.id} onClick={() => handleSelectWorkspace(organization.id)}  className="cursor-pointer">
+      {workspaces.map((workspace) => (
+       <DropdownMenuItem key={workspace.id} onClick={() => handleSelectWorkspace(workspace.id)}  className="cursor-pointer">
         <div className="flex w-full items-center gap-3 ml-2">
          <img
-          src={organization.imageUrl}
+          src={workspace.image_url}
           alt=""
           className="h-8 w-8 rounded-md object-cover"
          />
 
          <div className="flex flex-1 min-w-0 flex-col">
           <p className="truncate text-sm font-medium">
-            {organization.name}
+            {workspace.name}
           </p>
 
            <p className="truncate text-sm font-medium">
-            {organization.members?.length || 0} members
+            {workspace.members?.length || 0} members
           </p>
          </div>
 
-         {currentWorkspace?.id === organization.id && (<Check className="h-4 w-4 text-blue-500"/>)}
+         {currentWorkspace?.id === workspace.id && (<Check className="h-4 w-4 text-blue-500"/>)}
         </div>
        </DropdownMenuItem>
       ))}

@@ -6,8 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {Select,SelectTrigger,SelectValue,SelectContent,SelectItem,} from "@/components/ui/select";
+import { useOrganization } from "@clerk/react";
+import toast from "react-hot-toast";
 
 const InviteMemberDialog = ({isDialogOpen, setIsDialogOpen}) => {
+  const {organization} = useOrganization
 
   const currentWorkspace = useSelector((state) => state.workspace?.currentWorkspace || null)
 
@@ -16,12 +19,16 @@ const InviteMemberDialog = ({isDialogOpen, setIsDialogOpen}) => {
 
   const handleSubmit = async(e) => {
    e.preventDefault();
+   setIsSubmitting(true)
 
    try{
-    setIsSubmitting(true)
+     await organization.inviteMember({emailAddress: formData.email, role: formData.role})
+     toast.success("Convite enviado com sucesso")
+     setIsDialogOpen(false)
 
    }catch(error){
     console.log(error)
+    toast.error(error.response?.data?.message || error.message)
    }finally {
      setIsSubmitting(false)
    }

@@ -1,28 +1,20 @@
-import { useEffect, useState } from "react";
+
 import { useSelector } from "react-redux";
 import {ArrowRight,Clock,AlertTriangle,User,} from "lucide-react";
 import {Card,CardHeader,CardTitle,CardContent} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useUser } from "@clerk/react";
 
 export default function TasksSummary() {
   const { currentWorkspace } = useSelector((state) => state.workspace);
 
-  const user = { id: "user_1"}
-  const [tasks, setTasks] = useState([])
-
-  useEffect(() => {
-   if(!currentWorkspace){
-    setTasks([])
-    return;
-   }
-
-   const allTasks = currentWorkspace.projects.flatMap(
+   const {user} = useUser()
+   
+   const tasks =
+    currentWorkspace?.projects.flatMap(
     (project) => project.tasks || []
-   )
-
-   setTasks(allTasks)
-  }, [currentWorkspace])
+   ) || []
 
   const myTasks = tasks.filter(
    (task) => task.assigneeId === user.id

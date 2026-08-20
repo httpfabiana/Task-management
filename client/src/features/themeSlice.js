@@ -4,7 +4,6 @@ const initialState = {
   theme: "light",
 };
 
-// função que aplica o tema no html
 const applyTheme = (theme) => {
   if (theme === "dark") {
     document.documentElement.classList.add("dark");
@@ -26,7 +25,6 @@ const themeSlice = createSlice({
 
       state.theme = theme;
 
-      // aplica no html
       applyTheme(theme);
     },
 
@@ -42,7 +40,6 @@ const themeSlice = createSlice({
       if (theme) {
         state.theme = theme;
 
-        // aplica ao iniciar app
         applyTheme(theme);
       }
     },

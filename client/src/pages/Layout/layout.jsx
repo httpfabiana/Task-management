@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Outlet } from "react-router-dom";
 import { Loader2Icon } from "lucide-react";
@@ -10,10 +10,9 @@ import { fetchWorkspaces } from "@/features/workspaceSlice";
 
 
 const Layout = () => {
-  // controla se a sidebar está aberta ou fechada
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  // pega estado de loading do workspace
   const { loading, workspaces } = useSelector((state) => state.workspace);
 
   const dispatch = useDispatch();
@@ -22,16 +21,18 @@ const Layout = () => {
 
   const {getToken} = useAuth()
 
-  // carrega o tema quando o app abre
+  const hasFetched = useRef(false)
+
   useEffect(() => {
     dispatch(loadTheme());
   }, [dispatch]);
 
   useEffect(() => {
-    if(isLoaded && user && workspaces?.length === 0){
+    if(isLoaded && user && !hasFetched.current){
+      hasFetched.current = true
       dispatch(fetchWorkspaces({getToken}))
     }
-  }, [user, isLoaded])
+  }, [isLoaded, user, getToken, dispatch])
 
   if(!user){
     return (
@@ -41,7 +42,6 @@ const Layout = () => {
     )
   }
 
-  // enquanto estiver carregando, mostra tela de loading
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen bg-white dark:bg-zinc-950">
@@ -61,22 +61,18 @@ const Layout = () => {
   return (
     <div className="flex bg-white dark:bg-zinc-950 text-gray-900 dark:text-slate-100">
       
-      {/* Sidebar lateral */}
       <Sidebar
         isSidebarOpen={isSidebarOpen}
         setIsSidebarOpen={setIsSidebarOpen}
       />
 
-      {/* Área principal */}
       <div className="flex-1 flex flex-col h-screen">
         
-        {/* Barra superior */}
         <Navbar
           isSidebarOpen={isSidebarOpen}
           setIsSidebarOpen={setIsSidebarOpen}
         />
 
-        {/* Conteúdo da página (rotas) */}
         <main className="flex-1 p-6 xl:p-10 xl:px-16 overflow-y-auto">
           <Outlet />
         </main>

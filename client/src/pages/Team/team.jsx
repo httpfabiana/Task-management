@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useSelector } from "react-redux";
 import {Users,Search,UserPlus,FolderKanban,CheckSquare} from "lucide-react";
 import InviteMemberDialog from "@/components/InviteMemberDialog/InviteMemberDialog";
@@ -12,22 +12,17 @@ const Team = () => {
   const currentWorkspace = useSelector((state) => state.workspace.currentWorkspace)
   const projects = currentWorkspace?.projects || []
 
-  const [users, setUsers] = useState([])
-  const [tasks, setTasks] = useState([])
   const [searchTerm, setSearchTerm] = useState("")
   const [openDialog, setOpenDialog] = useState(false)
 
-  useEffect(() => {
-    setUsers(currentWorkspace?.members || [])
+   const users = currentWorkspace?.members || []
 
-    const allTasks = currentWorkspace?.projects?.flatMap(
-     (project) => project.tasks) || [];
+   const tasks =
+    currentWorkspace?.projects?.flatMap(
+    (project) => project.tasks || []
+   ) || []
 
-     setTasks(allTasks)
-
-  }, [currentWorkspace])
-
-  const filteredUsers = users.filter((item) => {
+   const filteredUsers = users.filter((item) => {
     const name = item.user?.name?.toLowerCase() || "";
 
     const email = item.user?.email?.toLowerCase() || "";
@@ -48,17 +43,17 @@ const Team = () => {
      <div className="flex flex-col md:flex-row gap-4 md:items-center md:justify-between">
       <div>
         <h1 className="text-2xl font-bold">
-          Team
+          Equipe
         </h1>
 
         <p className="text-sm text-muted-foreground">
-          Manage your members
+          Gerencie seus membros
         </p>
       </div>
 
       <Button onClick={() => setOpenDialog(true)}>
         <UserPlus className="w-4 h-4 mr-2"/>
-        Invite Member
+        Convidar membro
       </Button>
 
       <InviteMemberDialog isDialogOpen={openDialog} setIsDialogOpen={setOpenDialog}/>
@@ -69,7 +64,7 @@ const Team = () => {
       <CardContent className='p-5 flex justify-between items-center'>
        <div>
         <p className="text-sm text-muted-foreground">
-          Members
+          Membros
         </p>
         <h2 className="text-2xl font-bold">
           {users.length}
@@ -84,7 +79,7 @@ const Team = () => {
       <CardContent className='p-5 flex justify-between items-center'>
        <div>
         <p className="text-sm text-muted-foreground">
-          Active Projects
+          Projetos ativos
         </p>
         <h2 className="text-2xl font-bold">
           {activeProjects}
@@ -99,7 +94,7 @@ const Team = () => {
       <CardContent className='p-5 flex justify-between items-center'>
        <div>
         <p className="text-sm text-muted-foreground">
-          Tasks
+          Tarefa
         </p>
         <h2 className="text-2xl font-bold">
           {tasks.length}
@@ -113,7 +108,7 @@ const Team = () => {
      <div className="relative max-w-md">
       <Search className="absolute left-3 top-2 w-4 h-4 text-muted-foreground"/>
       <Input
-       placeholder='Search member...'
+       placeholder='Pesquise membros...'
        value={searchTerm}
        onChange={(e) => setSearchTerm(e.target.value)}
        className='pl-9'
@@ -122,13 +117,13 @@ const Team = () => {
 
      <Card>
       <CardHeader>
-        <CardTitle>Team Members</CardTitle>
+        <CardTitle>Membros da equipe</CardTitle>
       </CardHeader>
 
       <CardContent>
        {filteredUsers.length === 0 ? (
         <p className="text-sm text-muted-foreground">
-          No members found
+          Nenhum membro encontrado
         </p>
        ) : (
         filteredUsers.map((item) => (

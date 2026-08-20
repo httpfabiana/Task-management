@@ -5,10 +5,13 @@ import WorkspaceDropdown from '../SidebarDropdown/WorkspaceDropdown';
 import MyTaskSidebar from '../MyTasksSidebar/myTaskSidebar';
 import { Separator } from '../ui/separator'
 import { ScrollArea} from '../ui/scroll-area'
+import { useClerk } from '@clerk/react';
 
 
 const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const sidebarRef = useRef(null)
+
+  const {openUserProfile} = useClerk()
   
   const menuItems = [
    {
@@ -28,7 +31,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
    },
    {
     name: "Settings",
-    href: "/settings",
+    action: () => openUserProfile(),
     icon: SettingsIcon,
    }
   ];
@@ -63,13 +66,32 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
 
      <div className='space-y-1'>
      {menuItems.map((item) => (
-      <NavLink key={item.name} to={item.href} className={({ isActive}) => `flex items-center gap-3 rounded-lg px-4 py-2
-       text-md transition-all ${isActive ? "bg-muted font-medium" : "hover:bg-muted/60"}`}>
-        
-       <item.icon size={28}/>
-       <span>{item.name}</span>
-      </NavLink>
-     ))}
+
+     item.href ? (
+
+    <NavLink key={item.name} to={item.href} className={({ isActive }) =>
+        `flex items-center gap-3 rounded-lg px-4 py-2
+        text-md transition-all ${
+          isActive
+            ? "bg-muted font-medium"
+            : "hover:bg-muted/60"
+        }`
+      }
+    >
+      <item.icon size={28} />
+      <span>{item.name}</span>
+    </NavLink>
+
+  ) : (
+
+    <button key={item.name} onClick={item.action} className="flex w-full items-center gap-3 rounded-lg px-4 py-2
+      text-md transition-all hover:bg-muted/60"
+     >
+        <item.icon size={28} />
+        <span>{item.name}</span>
+    </button>
+  )
+))}
      </div>
 
      <Separator/>

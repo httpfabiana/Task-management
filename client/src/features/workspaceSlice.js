@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 //import { dummyWorkspaces} from '../assets/assets';
 import api from '../configs/api'
 
-export const fetchWorkspaces = createAsyncThunk('workspace/fetchWorkspaces', async({getToken}) => {
+export const fetchWorkspaces = createAsyncThunk('workspace/fetchWorkspaces', async({getToken},) => {
    try{
     const { data } = await api.get('/api/workspaces', {headers: {
       Authorization: `Bearer ${await getToken()}`
@@ -20,7 +20,7 @@ export const fetchWorkspaces = createAsyncThunk('workspace/fetchWorkspaces', asy
 const initialState = {
   workspaces:  [],
   currentWorkspace: null,
-  loading: false,
+  loading: true,
 };
 
 const workspaceSlice = createSlice({
@@ -154,6 +154,8 @@ const workspaceSlice = createSlice({
       state.workspaces = workspaces;
 
       if(workspaces.length === 0){
+        state.currentWorkspace = null
+        localStorage.removeItem("currentWorkspaceId")
         state.loading = false;
         return
       }
@@ -162,9 +164,11 @@ const workspaceSlice = createSlice({
 
       const saveWorkspace = workspaces.find((workspace) => workspace.id === saveWorkspaceId);
 
-      state.currentWorkspace = saveWorkspace || workspaces[0];
+      state.currentWorkspace = saveWorkspace || workspaces[0]
 
-      console.log("payload", action.payload)
+      if(state.currentWorkspace){
+        localStorage.setItem("currentWorkspaceId", state.currentWorkspace.id)
+      }
       state.loading = false;
      })
 

@@ -1,5 +1,4 @@
 import { FolderOpen, CheckCircle, Users, AlertTriangle } from "lucide-react";
-import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Card, CardContent } from "../ui/card";
 
@@ -7,33 +6,35 @@ import { Card, CardContent } from "../ui/card";
 export default function StatsGrid(){
   const { currentWorkspace } = useSelector((state) => state.workspace)
 
-  const [stats, setStats] = useState({
-    totalProjects: 0,
-    completedProjects: 0,
-    myTasks: 0,
-    overduesIssues: 0
-  })
+   const stats = {
+   totalProjects: currentWorkspace?.projects.length || 0,
 
-  useEffect(() => {
-    if(!currentWorkspace) return;
+   completedProjects:
+    currentWorkspace?.projects.filter(
+      (project) => project.stats === "COMPLETED"
+    ).length || 0,
 
-    const totalProjects = currentWorkspace.projects.length;
+   myTasks:
+    currentWorkspace?.projects.reduce(
+      (total, project) =>
+        total +
+        project.tasks.filter(
+          (task) =>
+            task.assignee?.email === currentWorkspace.owner.email
+        ).length,
+      0
+    ) || 0,
 
-    const completedProjects = currentWorkspace.projects.filter(
-     (project) => project.stats === "COMPLETED").length;
-
-    const myTasks = currentWorkspace.projects.reduce(
-     (total, project) => total + project.tasks.filter(
-     (task) => task.assignee?.email === currentWorkspace.owner.email).length,0)
-
-    
-     const overduesIssues = currentWorkspace.projects.reduce(
-      (total, project) => total + project.tasks.filter(
-      (task) => new Date(task.due_date) < new Date()).length,0)
-
-     setStats({totalProjects, completedProjects, myTasks, overduesIssues})
-    
-  }, [currentWorkspace])
+   overduesIssues:
+    currentWorkspace?.projects.reduce(
+      (total, project) =>
+        total +
+        project.tasks.filter(
+          (task) => new Date(task.due_date) < new Date()
+        ).length,
+      0
+    ) || 0
+}
 
     const cards = [
      {
